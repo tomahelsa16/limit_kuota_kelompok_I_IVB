@@ -23,11 +23,11 @@ class _NetworkState extends State<Network> {
 
   Future<void> fetchUsage() async {
     try {
-      final Map<dynamic, dynamic> result =
-          await platform.invokeMethod('getTodayUsage');
+      final Map<dynamic, dynamic> result = await platform.invokeMethod(
+        'getTodayUsage',
+      );
 
-      String todayDate =
-          DateFormat('yyyy-MM-dd').format(DateTime.now());
+      String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
       int wifiBytes = result['wifi'] ?? 0;
       int mobileBytes = result['mobile'] ?? 0;
@@ -65,19 +65,18 @@ class _NetworkState extends State<Network> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          backgroundColor:
-              isDarkMode ? Colors.grey[900] : Colors.white,
+          backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
           title: Text(
             "Batas Kuota Tercapai!",
-            style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black),
+            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
           ),
           content: Text(
             "Penggunaan data Anda sudah mencapai mencapai limit. "
             "Sistem Android tidak mengizinkan aplikasi mematikan internet secara otomatis. "
             "Silakan aktifkan 'Set Data Limit' di pengaturan sistem agar koneksi terputus otomatis.",
             style: TextStyle(
-                color: isDarkMode ? Colors.white70 : Colors.black87),
+              color: isDarkMode ? Colors.white70 : Colors.black87,
+            ),
           ),
           actions: [
             TextButton(
@@ -108,23 +107,28 @@ class _NetworkState extends State<Network> {
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        backgroundColor:
-            isDarkMode ? Colors.grey[900] : Colors.blue,
-        title: const Text('Monitoring Data'),
+        backgroundColor: isDarkMode
+            ? const Color.fromARGB(255, 0, 0, 0)
+            : Colors.blue,
+        // ✅ Perubahan: Judul berubah putih saat dark mode
+        title: Text(
+          'Monitoring Data',
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.white),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.history),
+            icon: const Icon(Icons.history, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const HistoryPage()),
+                MaterialPageRoute(builder: (context) => const HistoryPage()),
               );
             },
           ),
           // ✅ SWITCH DARK MODE
           Switch(
             value: isDarkMode,
+            activeColor: Colors.white,
             onChanged: (value) {
               setState(() {
                 isDarkMode = value;
@@ -139,8 +143,7 @@ class _NetworkState extends State<Network> {
           children: [
             _usageCard("WiFi Hari Ini", wifiUsage, Icons.wifi),
             const SizedBox(height: 20),
-            _usageCard(
-                "Data Hari Ini", mobileUsage, Icons.signal_cellular_alt),
+            _usageCard("Data Hari Ini", mobileUsage, Icons.signal_cellular_alt),
             const SizedBox(height: 40),
             ElevatedButton.icon(
               onPressed: fetchUsage,
@@ -160,9 +163,11 @@ class _NetworkState extends State<Network> {
       decoration: BoxDecoration(
         color: isDarkMode
             ? Colors.grey[850]
-            : const Color.fromARGB(255, 177, 180, 174),
+            : const Color.fromARGB(76, 177, 180, 174),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
+          // ✅ Perubahan: Border dibuat lebih tebal (width: 3)
+          width: 3.0, 
           color: isDarkMode
               ? Colors.white
               : const Color.fromARGB(255, 226, 111, 155),
@@ -185,8 +190,7 @@ class _NetworkState extends State<Network> {
                 title,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color:
-                      isDarkMode ? Colors.white : Colors.black,
+                  color: isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
               Text(
@@ -211,18 +215,17 @@ class _NetworkState extends State<Network> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor:
-              isDarkMode ? Colors.grey[900] : Colors.white,
+          backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
           title: Text(
             "Izin Diperlukan",
-            style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black),
+            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
           ),
           content: Text(
             "Aplikasi membutuhkan izin 'Akses Penggunaan' untuk membaca statistik data internet di perangkat Anda.\n\n"
             "Silakan aktifkan izin untuk aplikasi ini di halaman pengaturan yang akan terbuka.",
             style: TextStyle(
-                color: isDarkMode ? Colors.white70 : Colors.black87),
+              color: isDarkMode ? Colors.white70 : Colors.black87,
+            ),
           ),
           actions: [
             TextButton(
