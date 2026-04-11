@@ -121,9 +121,9 @@ class _NetworkState extends State<Network> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _usageCard("WiFi Today", wifiUsage, Icons.wifi),
+            _usageCard("WiFi Hari Ini", wifiUsage, Icons.wifi),
             const SizedBox(height: 20),
-            _usageCard("Mobile Today", mobileUsage, Icons.signal_cellular_alt),
+            _usageCard("Data Hari Ini", mobileUsage, Icons.signal_cellular_alt),
             const SizedBox(height: 40),
             ElevatedButton.icon(
               onPressed: fetchUsage,
@@ -141,13 +141,13 @@ class _NetworkState extends State<Network> {
       width: 300,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: const Color.fromARGB(255, 177, 180, 174),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: const Color.fromARGB(255, 226, 111, 155)),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 40, color: Colors.blue),
+          Icon(icon, size: 40, color: const Color.fromARGB(255, 226, 111, 155)),
           const SizedBox(width: 20),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +155,7 @@ class _NetworkState extends State<Network> {
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
               Text(
                 value,
-                style: const TextStyle(fontSize: 20, color: Colors.blueAccent),
+                style: const TextStyle(fontSize: 20, color: Color.fromARGB(2255, 226, 111, 155)),
               ),
             ],
           ),
