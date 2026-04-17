@@ -125,7 +125,7 @@ class _HistoryPageState extends State<HistoryPage> {
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: ListTile(
-                  leading: const Icon(Icons.history, color: Colors.blue),
+                  leading: const Icon(Icons.history, color: Color.fromARGB(255, 226, 111, 155)),
                   title: Text(
                     item['date'], // Tanggal (YYYY-MM-DD)
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -139,7 +139,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   ),
                   trailing: IconButton(
                     tooltip: "Hapus riwayat ini",
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Color.fromARGB(255, 226, 111, 155)),
                     onPressed: () => _deleteHistoryItem(item['date']),
                   ),
                 ),

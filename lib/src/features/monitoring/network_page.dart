@@ -374,7 +374,7 @@ class _NetworkState extends State<Network> {
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        backgroundColor: isDarkMode ? Colors.grey[900] : Colors.blue,
+        backgroundColor: isDarkMode ? Colors.grey[900] : Color.fromARGB(255, 226, 111, 155),
         title: Text(_t('title'), style: const TextStyle(color: Colors.white)),
         actions: [
           Center(
@@ -383,7 +383,7 @@ class _NetworkState extends State<Network> {
           ),
           Switch(
             value: isEnglish,
-            activeColor: Colors.orange,
+            activeColor: Color.fromARGB(255, 44, 35, 38),
             onChanged: (value) => setState(() => isEnglish = value),
           ),
           IconButton(
@@ -462,14 +462,14 @@ class _NetworkState extends State<Network> {
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey[850] : Colors.grey[100],
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(width: 2.0, color: isDarkMode ? Colors.white70 : Colors.blue),
+        border: Border.all(width: 2.0, color: isDarkMode ? Colors.white70 : Color.fromARGB(255, 226, 111, 155)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: isDarkMode ? Colors.white : Colors.blue),
+              Icon(icon, color: isDarkMode ? Colors.white : Color.fromARGB(255, 226, 111, 155)),
               const SizedBox(width: 12),
               Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode ? Colors.white : Colors.black)),
             ],
