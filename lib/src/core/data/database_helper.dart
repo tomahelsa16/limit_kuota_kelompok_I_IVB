@@ -17,7 +17,12 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _createDB,
+      onUpgrade: _upgradeDB,
+    );
   }
 
   Future _createDB(Database db, int version) async {
@@ -27,6 +32,23 @@ class DatabaseHelper {
       date TEXT PRIMARY KEY, 
       wifi INTEGER, 
       mobile INTEGER
+    )
+    ''');
+
+    await _createSettingsTable(db);
+  }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _createSettingsTable(db);
+    }
+  }
+
+  Future<void> _createSettingsTable(Database db) async {
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value INTEGER
     )
     ''');
   }
@@ -48,5 +70,51 @@ class DatabaseHelper {
     final db = await instance.database;
     // Ambil data diurutkan dari tanggal terbaru
     return await db.query('history', orderBy: 'date DESC');
+  }
+
+  Future<void> deleteHistoryByDate(String date) async {
+    final db = await instance.database;
+    await db.delete('history', where: 'date = ?', whereArgs: [date]);
+  }
+
+  Future<void> deleteAllHistory() async {
+    final db = await instance.database;
+    await db.delete('history');
+  }
+
+  Future<int> getMonthlyUsage(String yearMonth) async {
+    final db = await instance.database;
+    final result = await db.rawQuery(
+      '''
+      SELECT COALESCE(SUM(wifi + mobile), 0) AS total
+      FROM history
+      WHERE substr(date, 1, 7) = ?
+      ''',
+      [yearMonth],
+    );
+
+    return (result.first['total'] as int?) ?? 0;
+  }
+
+  Future<int?> getSetting(String key) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'settings',
+      columns: ['value'],
+      where: 'key = ?',
+      whereArgs: [key],
+      limit: 1,
+    );
+
+    if (result.isEmpty) return null;
+    return result.first['value'] as int?;
+  }
+
+  Future<void> setSetting(String key, int value) async {
+    final db = await instance.database;
+    await db.insert('settings', {
+      'key': key,
+      'value': value,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }
