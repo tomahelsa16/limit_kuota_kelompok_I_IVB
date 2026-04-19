@@ -19,6 +19,9 @@ class _NetworkState extends State<Network> {
   static const _dailyLimitKey = 'daily_limit_bytes';
   static const _monthlyLimitKey = 'monthly_limit_bytes';
 
+  Color get activeColor =>
+      isDarkMode ? Colors.white : const Color.fromARGB(255, 226, 111, 155);
+
   String wifiUsage = "0.00 MB";
   String mobileUsage = "0.00 MB";
 
@@ -33,9 +36,9 @@ class _NetworkState extends State<Network> {
   bool _dailyLimitShown = false;
   bool _monthlyLimitShown = false;
   bool isDarkMode = false;
-  
+
   // Fitur Translate
-  bool isEnglish = false; 
+  bool isEnglish = false;
 
   Timer? _dailyResetTimer;
   String _activeDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -48,12 +51,13 @@ class _NetworkState extends State<Network> {
       'data_today': 'Data Hari Ini',
       'daily_limit': 'Limit Harian',
       'monthly_limit': 'Limit Bulanan',
-      'refresh': 'Refresh Data',
+      'refresh': 'Segarkan',
       'set_limit': 'Set Limit Kuota',
       'history': 'Riwayat penggunaan',
       'reached': 'Tercapai!',
       'warning_msg': 'Kuota kamu tinggal 10% lagi!',
-      'limit_msg': 'Penggunaan data sudah mencapai limit. Sistem Android tidak mengizinkan aplikasi mematikan internet otomatis. Silakan aktifkan Set Data Limit di pengaturan sistem.',
+      'limit_msg':
+          'Penggunaan data sudah mencapai limit. Sistem Android tidak mengizinkan aplikasi mematikan internet otomatis. Silakan aktifkan Set Data Limit di pengaturan sistem.',
       'later': 'Nanti',
       'open_settings': 'Buka Pengaturan',
       'save': 'Simpan',
@@ -61,7 +65,8 @@ class _NetworkState extends State<Network> {
       'error_input': 'Limit harus berupa angka lebih dari 0.',
       'success_save': 'Limit kuota berhasil disimpan.',
       'permission_title': 'Izin Diperlukan',
-      'permission_msg': 'Aplikasi membutuhkan izin Akses Penggunaan untuk membaca statistik data internet di perangkat Anda.',
+      'permission_msg':
+          'Aplikasi membutuhkan izin Akses Penggunaan untuk membaca statistik data internet di perangkat Anda.',
       'try_again': 'Coba Lagi',
     },
     'en': {
@@ -75,7 +80,8 @@ class _NetworkState extends State<Network> {
       'history': 'Usage History',
       'reached': 'Reached!',
       'warning_msg': 'You have only 10% left!',
-      'limit_msg': 'Data usage has reached the limit. Android does not allow apps to toggle internet automatically. Please enable Set Data Limit in system settings.',
+      'limit_msg':
+          'Data usage has reached the limit. Android does not allow apps to toggle internet automatically. Please enable Set Data Limit in system settings.',
       'later': 'Later',
       'open_settings': 'Open Settings',
       'save': 'Save',
@@ -83,9 +89,10 @@ class _NetworkState extends State<Network> {
       'error_input': 'Limit must be a number greater than 0.',
       'success_save': 'Quota limit saved successfully.',
       'permission_title': 'Permission Required',
-      'permission_msg': 'The app needs Usage Access permission to read internet data statistics on your device.',
+      'permission_msg':
+          'The app needs Usage Access permission to read internet data statistics on your device.',
       'try_again': 'Try Again',
-    }
+    },
   };
 
   String _t(String key) {
@@ -112,7 +119,9 @@ class _NetworkState extends State<Network> {
 
   Future<void> _loadLimits() async {
     final dailyLimit = await DatabaseHelper.instance.getSetting(_dailyLimitKey);
-    final monthlyLimit = await DatabaseHelper.instance.getSetting(_monthlyLimitKey);
+    final monthlyLimit = await DatabaseHelper.instance.getSetting(
+      _monthlyLimitKey,
+    );
 
     if (!mounted) return;
     setState(() {
@@ -125,15 +134,23 @@ class _NetworkState extends State<Network> {
     await _resetDailyDisplayIfDateChanged();
 
     try {
-      final Map<dynamic, dynamic> result = await platform.invokeMethod('getTodayUsage');
+      final Map<dynamic, dynamic> result = await platform.invokeMethod(
+        'getTodayUsage',
+      );
 
       final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final currentMonth = DateFormat('yyyy-MM').format(DateTime.now());
       final wifiBytes = (result['wifi'] as int?) ?? 0;
       final mobileBytes = (result['mobile'] as int?) ?? 0;
 
-      await DatabaseHelper.instance.insertOrUpdate(todayDate, wifiBytes, mobileBytes);
-      final monthlyUsage = await DatabaseHelper.instance.getMonthlyUsage(currentMonth);
+      await DatabaseHelper.instance.insertOrUpdate(
+        todayDate,
+        wifiBytes,
+        mobileBytes,
+      );
+      final monthlyUsage = await DatabaseHelper.instance.getMonthlyUsage(
+        currentMonth,
+      );
 
       if (!mounted) return;
       setState(() {
@@ -249,7 +266,9 @@ class _NetworkState extends State<Network> {
       onWarningShown();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("${_t('warning_msg')} $title: ${_formatBytes(currentUsage)} / ${_formatBytes(limitBytes)}."),
+          content: Text(
+            "${_t('warning_msg')} $title: ${_formatBytes(currentUsage)} / ${_formatBytes(limitBytes)}.",
+          ),
         ),
       );
     }
@@ -260,10 +279,12 @@ class _NetworkState extends State<Network> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
-        title: Text("$title ${_t('reached')}",
+        title: Text(
+          "$title ${_t('reached')}",
           style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
         ),
-        content: Text(_t('limit_msg'),
+        content: Text(
+          _t('limit_msg'),
           style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
         ),
         actions: [
@@ -284,14 +305,19 @@ class _NetworkState extends State<Network> {
   }
 
   Future<void> _showSetLimitDialog() async {
-    final dailyController = TextEditingController(text: _formatLimit(_dailyLimitBytes));
-    final monthlyController = TextEditingController(text: _formatLimit(_monthlyLimitBytes));
+    final dailyController = TextEditingController(
+      text: _formatLimit(_dailyLimitBytes),
+    );
+    final monthlyController = TextEditingController(
+      text: _formatLimit(_monthlyLimitBytes),
+    );
 
     final saved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
-        title: Text(_t('set_limit'),
+        title: Text(
+          _t('set_limit'),
           style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
         ),
         content: Column(
@@ -299,13 +325,21 @@ class _NetworkState extends State<Network> {
           children: [
             TextField(
               controller: dailyController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: "${_t('daily_limit')} (GB)"),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                labelText: "${_t('daily_limit')} (GB)",
+              ),
             ),
             TextField(
               controller: monthlyController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: "${_t('monthly_limit')} (GB)"),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                labelText: "${_t('monthly_limit')} (GB)",
+              ),
             ),
           ],
         ),
@@ -316,16 +350,31 @@ class _NetworkState extends State<Network> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final dailyValue = double.tryParse(dailyController.text.replaceAll(',', '.'));
-              final monthlyValue = double.tryParse(monthlyController.text.replaceAll(',', '.'));
+              final dailyValue = double.tryParse(
+                dailyController.text.replaceAll(',', '.'),
+              );
+              final monthlyValue = double.tryParse(
+                monthlyController.text.replaceAll(',', '.'),
+              );
 
-              if (dailyValue == null || monthlyValue == null || dailyValue <= 0 || monthlyValue <= 0) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t('error_input'))));
+              if (dailyValue == null ||
+                  monthlyValue == null ||
+                  dailyValue <= 0 ||
+                  monthlyValue <= 0) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(_t('error_input'))));
                 return;
               }
 
-              await DatabaseHelper.instance.setSetting(_dailyLimitKey, _gbToBytes(dailyValue));
-              await DatabaseHelper.instance.setSetting(_monthlyLimitKey, _gbToBytes(monthlyValue));
+              await DatabaseHelper.instance.setSetting(
+                _dailyLimitKey,
+                _gbToBytes(dailyValue),
+              );
+              await DatabaseHelper.instance.setSetting(
+                _monthlyLimitKey,
+                _gbToBytes(monthlyValue),
+              );
               if (!context.mounted) return;
               Navigator.pop(context, true);
             },
@@ -340,9 +389,12 @@ class _NetworkState extends State<Network> {
 
     if (saved != true || !mounted) return;
     await _loadLimits();
-    _dailyWarningShown = _monthlyWarningShown = _dailyLimitShown = _monthlyLimitShown = false;
+    _dailyWarningShown = _monthlyWarningShown = _dailyLimitShown =
+        _monthlyLimitShown = false;
     _checkQuotaLimits();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t('success_save'))));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(_t('success_save'))));
   }
 
   void _showPermissionDialog() {
@@ -351,10 +403,19 @@ class _NetworkState extends State<Network> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
-        title: Text(_t('permission_title'), style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
-        content: Text(_t('permission_msg'), style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87)),
+        title: Text(
+          _t('permission_title'),
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
+        ),
+        content: Text(
+          _t('permission_msg'),
+          style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(_t('cancel'))),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(_t('cancel')),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
@@ -374,16 +435,21 @@ class _NetworkState extends State<Network> {
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
       appBar: AppBar(
-        backgroundColor: isDarkMode ? Colors.grey[900] : Color.fromARGB(255, 226, 111, 155),
+        backgroundColor: isDarkMode ? Colors.grey[900] : activeColor,
         title: Text(_t('title'), style: const TextStyle(color: Colors.white)),
         actions: [
           Center(
-            child: Text(isEnglish ? "EN" : "ID", 
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text(
+              isEnglish ? "EN" : "ID",
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           Switch(
             value: isEnglish,
-            activeColor: Color.fromARGB(255, 44, 35, 38),
+            activeColor: const Color.fromARGB(255, 44, 35, 38),
             onChanged: (value) => setState(() => isEnglish = value),
           ),
           IconButton(
@@ -394,7 +460,10 @@ class _NetworkState extends State<Network> {
           IconButton(
             tooltip: _t('history'),
             icon: const Icon(Icons.history, color: Colors.white),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HistoryPage())),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HistoryPage()),
+            ),
           ),
           Switch(
             value: isDarkMode,
@@ -411,16 +480,38 @@ class _NetworkState extends State<Network> {
             children: [
               _usageCard(_t('wifi_today'), wifiUsage, Icons.wifi),
               const SizedBox(height: 20),
-              _usageCard(_t('data_today'), mobileUsage, Icons.signal_cellular_alt),
+              _usageCard(
+                _t('data_today'),
+                mobileUsage,
+                Icons.signal_cellular_alt,
+              ),
               const SizedBox(height: 20),
-              _limitInfoCard(_t('daily_limit'), todayUsage, _dailyLimitBytes, Icons.today),
+              _limitInfoCard(
+                _t('daily_limit'),
+                todayUsage,
+                _dailyLimitBytes,
+                Icons.today,
+              ),
               const SizedBox(height: 20),
-              _limitInfoCard(_t('monthly_limit'), _monthlyUsageBytes, _monthlyLimitBytes, Icons.calendar_month),
+              _limitInfoCard(
+                _t('monthly_limit'),
+                _monthlyUsageBytes,
+                _monthlyLimitBytes,
+                Icons.calendar_month,
+              ),
               const SizedBox(height: 40),
               ElevatedButton.icon(
                 onPressed: fetchUsage,
-                icon: const Icon(Icons.refresh),
-                label: Text(_t('refresh')),
+                icon: Icon(
+                  Icons.refresh,
+                  color: isDarkMode ? Colors.black : activeColor,
+                ),
+                label: Text(
+                  _t('refresh'),
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.black : activeColor,
+                  ),
+                ),
               ),
             ],
           ),
@@ -434,19 +525,36 @@ class _NetworkState extends State<Network> {
       width: 300,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDarkMode ? Colors.grey[850] : const Color.fromARGB(76, 177, 180, 174),
+        color: isDarkMode
+            ? Colors.grey[850]
+            : const Color.fromARGB(76, 177, 180, 174),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(width: 3.0, color: isDarkMode ? Colors.white : const Color.fromARGB(255, 226, 111, 155)),
+        border: Border.all(
+          width: 3.0,
+          color: isDarkMode ? Colors.white : activeColor,
+        ),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 40, color: isDarkMode ? Colors.white : const Color.fromARGB(255, 226, 111, 155)),
+          Icon(icon, size: 40, color: isDarkMode ? Colors.white : activeColor),
           const SizedBox(width: 20),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode ? Colors.white : Colors.black)),
-              Text(value, style: TextStyle(fontSize: 20, color: isDarkMode ? Colors.white70 : const Color.fromARGB(255, 226, 111, 155))),
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 20,
+                  color: isDarkMode ? Colors.white70 : activeColor,
+                ),
+              ),
             ],
           ),
         ],
@@ -454,31 +562,54 @@ class _NetworkState extends State<Network> {
     );
   }
 
-  Widget _limitInfoCard(String title, int currentUsage, int limitBytes, IconData icon) {
-    final percent = limitBytes <= 0 ? 0.0 : (currentUsage / limitBytes).clamp(0.0, 1.0);
+  Widget _limitInfoCard(
+    String title,
+    int currentUsage,
+    int limitBytes,
+    IconData icon,
+  ) {
+    final percent = limitBytes <= 0
+        ? 0.0
+        : (currentUsage / limitBytes).clamp(0.0, 1.0);
     return Container(
       width: 300,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey[850] : Colors.grey[100],
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(width: 2.0, color: isDarkMode ? Colors.white70 : Color.fromARGB(255, 226, 111, 155)),
+        border: Border.all(
+          width: 2.0,
+          color: isDarkMode ? Colors.white70 : activeColor,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: isDarkMode ? Colors.white : Color.fromARGB(255, 226, 111, 155)),
+              Icon(icon, color: isDarkMode ? Colors.white : activeColor),
               const SizedBox(width: 12),
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode ? Colors.white : Colors.black)),
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          LinearProgressIndicator(value: percent),
+          LinearProgressIndicator(
+            value: percent,
+            valueColor: AlwaysStoppedAnimation<Color>(activeColor),
+            backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[300],
+          ),
           const SizedBox(height: 8),
-          Text("${_formatBytes(currentUsage)} / ${_formatBytes(limitBytes)}",
-            style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
+          Text(
+            "${_formatBytes(currentUsage)} / ${_formatBytes(limitBytes)}",
+            style: TextStyle(
+              color: isDarkMode ? Colors.white70 : Colors.black87,
+            ),
           ),
         ],
       ),
